@@ -21,7 +21,7 @@
     <input 
       ref="fileInput"
       type="file" 
-      accept="audio/*" 
+      accept=".wav,audio/wav" 
       @change="handleFileUpload"
       class="file-input-hidden"
     >
@@ -112,6 +112,19 @@ const triggerFileUpload = () => {
 const handleFileUpload = async (event) => {
   const file = event.target.files[0]
   if (file) {
+    if (!file.type.includes('wav') && !file.name.toLowerCase().endsWith('.wav')) {
+      alert('Solo se permiten archivos WAV')
+      event.target.value = ''
+      return
+    }
+    
+    const maxSize = 20 * 1024 * 1024 // 20MB en bytes
+    if (file.size > maxSize) {
+      alert('El archivo es demasiado grande. Máximo 20MB permitido.')
+      event.target.value = ''
+      return
+    }
+    
     isProcessing.value = true
     emit('processing-start')
     
