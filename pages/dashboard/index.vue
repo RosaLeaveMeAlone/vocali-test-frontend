@@ -20,7 +20,8 @@
 import { ref } from 'vue'
 
 definePageMeta({
-  layout: 'dashboard'
+  layout: 'dashboard',
+  middleware: 'auth'
 })
 
 const { transcribeFile } = useTranscription()

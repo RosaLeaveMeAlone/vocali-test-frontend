@@ -103,7 +103,8 @@ import { ref, onMounted, onUnmounted } from 'vue'
 const { $api } = useNuxtApp()
 
 definePageMeta({
-  layout: 'dashboard'
+  layout: 'dashboard',
+  middleware: 'auth'
 })
 
 const isRecording = ref(false)
