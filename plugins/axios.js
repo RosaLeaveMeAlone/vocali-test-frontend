@@ -6,12 +6,8 @@ export default defineNuxtPlugin((nuxtApp) => {
   const api = $fetch.create({
     baseURL: config.public.apiBaseUrl,
     
-    // Interceptor para requests - aquí forzamos el Content-Type
     onRequest({ request, options }) {
-      console.log('Making request to:', request)
-      console.log('Request options:', options)
       
-      // Forzar Content-Type para todas las peticiones POST
       if (options.method === 'POST' || options.method === 'PUT') {
         options.headers = {
           ...options.headers,
@@ -19,7 +15,6 @@ export default defineNuxtPlugin((nuxtApp) => {
         }
       }
       
-      // Agregar token si existe
       const token = useCookie('auth-token')
       if (token.value) {
         options.headers = {

@@ -2,7 +2,7 @@
 import { navigateTo } from '#app';
 
 const handleRedirect = () => {
-  navigateTo('/login'); // Middleware will handle redirection to /dashboard if authenticated
+  navigateTo('/login'); 
 };
 </script>
 

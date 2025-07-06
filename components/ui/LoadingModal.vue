@@ -2,10 +2,8 @@
   <div v-if="isLoading" class="loading-overlay">
     <div class="loading-modal">
       <div class="loading-content">
-        <!-- Spinner simple pero bonito -->
         <div class="simple-spinner"></div>
         
-        <!-- Texto -->
         <div class="loading-text">
           <h3>Procesando transcripción...</h3>
           <p>Por favor espera</p>

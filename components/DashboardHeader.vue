@@ -4,7 +4,6 @@
       <div class="header-flex">
         <h1 class="header-title">Dashboard de Transcripciones</h1>
         
-        <!-- Navegación -->
         <nav class="nav-container">
           <NuxtLink to="/dashboard" class="nav-link">
             Transcripciones
@@ -26,7 +25,6 @@
 </template>
 
 <script setup>
-// Definir los eventos que emite el componente
 defineEmits(['logout'])
 </script>
 

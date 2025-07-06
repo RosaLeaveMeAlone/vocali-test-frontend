@@ -1,12 +1,10 @@
 <template>
   <div class="register-form">
-    <!-- Header del formulario -->
     <div class="form-header">
       <h2 class="form-title">Crear Cuenta</h2>
       <p class="form-subtitle">Completa los datos para comenzar</p>
     </div>
 
-    <!-- Mensaje de error -->
     <div v-if="error" class="error-message">
       <svg class="error-icon" fill="currentColor" viewBox="0 0 20 20">
         <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
@@ -14,9 +12,7 @@
       {{ error }}
     </div>
 
-    <!-- Formulario -->
     <form @submit.prevent="handleRegister" class="register-form-content">
-      <!-- Campo Email -->
       <div class="form-group">
         <label for="email" class="form-label">
           <svg class="label-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -34,7 +30,6 @@
         />
       </div>
 
-      <!-- Campo Contraseña -->
       <div class="form-group">
         <label for="password" class="form-label">
           <svg class="label-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -52,7 +47,6 @@
         />
       </div>
 
-      <!-- Campo Confirmar Contraseña -->
       <div class="form-group">
         <label for="confirmPassword" class="form-label">
           <svg class="label-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -70,7 +64,6 @@
         />
       </div>
 
-      <!-- Botón de envío -->
       <button
         type="submit"
         class="submit-button"
@@ -85,7 +78,6 @@
       </button>
     </form>
 
-    <!-- Link a login -->
     <div class="form-footer">
       <p class="footer-text">
         ¿Ya tienes una cuenta? 

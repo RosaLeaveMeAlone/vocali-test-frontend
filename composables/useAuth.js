@@ -1,7 +1,6 @@
 import { navigateTo } from '#app';
 
 export const useAuth = () => {
-  // Use useState with client-side initialization
   const user = useState('user', () => {
     if (process.client) {
       return JSON.parse(localStorage.getItem('user') || 'null');
@@ -15,7 +14,6 @@ export const useAuth = () => {
     return null;
   });
 
-  // Sync with localStorage only on client
   const syncWithLocalStorage = () => {
     if (process.client) {
       token.value = localStorage.getItem('token') || null;
@@ -23,7 +21,6 @@ export const useAuth = () => {
     }
   };
 
-  // Call sync on client mount
   if (process.client) {
     syncWithLocalStorage();
   }

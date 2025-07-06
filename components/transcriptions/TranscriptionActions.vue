@@ -18,7 +18,6 @@
       📁 Subir Archivo
     </button>
     
-    <!-- Input file oculto -->
     <input 
       ref="fileInput"
       type="file" 
@@ -32,21 +31,17 @@
 <script setup>
 import { ref, onUnmounted } from 'vue'
 
-// Definir los eventos que emite el componente
 const emit = defineEmits(['audio-recorded', 'file-uploaded', 'processing-start', 'processing-end'])
 
-// Variables reactivas
 const isRecording = ref(false)
 const isProcessing = ref(false)
 const recordingTime = ref(0)
 const fileInput = ref(null)
 
-// Variables para grabación
 let mediaRecorder = null
 let audioChunks = []
 let recordingInterval = null
 
-// Función para iniciar grabación
 const startRecording = async () => {
   try {
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
@@ -61,7 +56,6 @@ const startRecording = async () => {
     }
     
     mediaRecorder.onstop = async () => {
-      // Iniciar estado de procesamiento
       isProcessing.value = true
       emit('processing-start')
       
@@ -71,17 +65,13 @@ const startRecording = async () => {
         const audioContext = new (window.AudioContext || window.webkitAudioContext)()
         const audioBuffer = await audioContext.decodeAudioData(arrayBuffer)
         
-        // Convertir a WAV
         const wavBlob = audioBufferToWav(audioBuffer)
         const base64Audio = await convertToBase64(wavBlob)
         
-        // Extraer solo la parte base64 (sin el prefijo data:audio/wav;base64,)
         const base64Data = base64Audio.split(',')[1]
         
-        // Detener el stream
         stream.getTracks().forEach(track => track.stop())
         
-        // Emitir el evento con el audio grabado
         emit('audio-recorded', base64Data)
         
       } catch (error) {
@@ -94,7 +84,6 @@ const startRecording = async () => {
     
     mediaRecorder.start()
     
-    // Timer de 30 segundos
     recordingInterval = setInterval(() => {
       recordingTime.value++
       if (recordingTime.value >= 30) {
@@ -108,7 +97,6 @@ const startRecording = async () => {
   }
 }
 
-// Función para detener grabación
 const stopRecording = () => {
   if (mediaRecorder && mediaRecorder.state !== 'inactive') {
     mediaRecorder.stop()
@@ -117,22 +105,18 @@ const stopRecording = () => {
   clearInterval(recordingInterval)
 }
 
-// Función para activar selector de archivos
 const triggerFileUpload = () => {
   fileInput.value.click()
 }
 
-// Función para manejar subida de archivos
 const handleFileUpload = async (event) => {
   const file = event.target.files[0]
   if (file) {
-    // Iniciar estado de procesamiento
     isProcessing.value = true
     emit('processing-start')
     
     try {
       const base64File = await convertToBase64(file)
-      // Extraer solo la parte base64 (sin el prefijo)
       const base64Data = base64File.split(',')[1]
       emit('file-uploaded', base64Data)
     } catch (error) {
@@ -143,22 +127,18 @@ const handleFileUpload = async (event) => {
     }
   }
   
-  // Limpiar el input para permitir subir el mismo archivo nuevamente
   event.target.value = ''
 }
 
-// Función para terminar el procesamiento (llamada desde el padre)
 const finishProcessing = () => {
   isProcessing.value = false
   emit('processing-end')
 }
 
-// Exponer la función para que el componente padre pueda llamarla
 defineExpose({
   finishProcessing
 })
 
-// Función para convertir a base64
 const convertToBase64 = (file) => {
   return new Promise((resolve, reject) => {
     const reader = new FileReader()
@@ -168,13 +148,11 @@ const convertToBase64 = (file) => {
   })
 }
 
-// Función para convertir AudioBuffer a WAV
 const audioBufferToWav = (buffer) => {
   const length = buffer.length
   const arrayBuffer = new ArrayBuffer(44 + length * 2)
   const view = new DataView(arrayBuffer)
   
-  // WAV header
   const writeString = (offset, string) => {
     for (let i = 0; i < string.length; i++) {
       view.setUint8(offset + i, string.charCodeAt(i))
@@ -195,7 +173,6 @@ const audioBufferToWav = (buffer) => {
   writeString(36, 'data')
   view.setUint32(40, length * 2, true)
   
-  // Convertir float32 a int16
   const channelData = buffer.getChannelData(0)
   let offset = 44
   for (let i = 0; i < length; i++) {
@@ -207,7 +184,6 @@ const audioBufferToWav = (buffer) => {
   return new Blob([arrayBuffer], { type: 'audio/wav' })
 }
 
-// Limpiar intervalos al desmontar
 onUnmounted(() => {
   if (recordingInterval) {
     clearInterval(recordingInterval)

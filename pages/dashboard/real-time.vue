@@ -5,7 +5,6 @@
         Transcripción en Tiempo Real
       </v-card-title>
 
-      <!-- Controles -->
       <div class="controls mb-6">
         <v-btn
           @click="toggleRecording"
@@ -28,27 +27,22 @@
         </v-chip>
       </div>
 
-      <!-- Área de transcripción -->
       <v-card
         variant="outlined"
         class="transcript-area pa-4"
         min-height="300"
       >
         <div class="transcript-content">
-          <!-- Texto final -->
           <span class="final-text">{{ finalTranscript }}</span>
           
-          <!-- Texto parcial (en cursiva) -->
           <span v-if="partialTranscript" class="partial-text">
             {{ partialTranscript }}
           </span>
           
-          <!-- Indicador de grabación -->
           <span v-if="isRecording && !partialTranscript" class="recording-indicator">
             Escuchando...
           </span>
           
-          <!-- Mensaje cuando está vacío -->
           <div v-if="!finalTranscript && !partialTranscript && !isRecording" class="empty-state">
             <v-icon size="48" color="grey-lighten-2" class="mb-2">
               mdi-microphone-outline
@@ -60,7 +54,6 @@
         </div>
       </v-card>
 
-      <!-- Acciones adicionales -->
       <div class="actions mt-4">
         <v-btn
           @click="clearTranscript"
@@ -94,7 +87,6 @@
         </v-btn>
       </div>
 
-      <!-- Toast para notificaciones -->
       <v-snackbar
         v-model="showToast"
         :color="toastColor"
@@ -110,12 +102,10 @@
 import { ref, onMounted, onUnmounted } from 'vue'
 const { $api } = useNuxtApp()
 
-// Definir el layout
 definePageMeta({
   layout: 'dashboard'
 })
 
-// Estados reactivos
 const isRecording = ref(false)
 const isConnecting = ref(false)
 const finalTranscript = ref('')
@@ -125,21 +115,18 @@ const toastMessage = ref('')
 const toastColor = ref('success')
 const isSaving = ref(false)
 
-// Variables para la grabación
 let mediaStream = null
 let audioContext = null
 let processor = null
 let websocket = null
 
-// Configuración de Speechmatics
 const SPEECHMATICS_CONFIG = {
-  language: 'es', // o 'en' para inglés
+  language: 'es', 
   enablePartials: true,
   maxDelay: 2,
   websocketUrl: 'wss://eu2.rt.speechmatics.com/v2'
 }
 
-// Función para obtener JWT token
 const fetchJWT = async () => {
   try {
     const response = await $api('/speechmatics-token', {
@@ -153,7 +140,6 @@ const fetchJWT = async () => {
   }
 }
 
-// Función para iniciar/detener grabación
 const toggleRecording = async () => {
   if (isRecording.value) {
     await stopRecording()
@@ -162,16 +148,13 @@ const toggleRecording = async () => {
   }
 }
 
-// Función para iniciar grabación
 const startRecording = async () => {
   try {
     isConnecting.value = true
 
-    // Obtener JWT token primero
     const jwt = await fetchJWT()
     console.log('JWT obtenido:', jwt.substring(0, 20) + '...')
 
-    // Obtener permisos del micrófono
     mediaStream = await navigator.mediaDevices.getUserMedia({ 
       audio: {
         sampleRate: 16000,
@@ -181,19 +164,14 @@ const startRecording = async () => {
       }
     })
 
-    // IMPORTANTE: Para navegadores, el JWT va como query parameter
     const websocketUrl = `${SPEECHMATICS_CONFIG.websocketUrl}?jwt=${jwt}`
     console.log('Conectando a:', websocketUrl.replace(jwt, 'JWT_TOKEN_HIDDEN'))
     
-    // Configurar WebSocket
     websocket = new WebSocket(websocketUrl)
 
     websocket.onopen = () => {
       console.log('WebSocket conectado')
       
-      // Para navegadores NO enviamos SetRecognitionConfig, 
-      // la autenticación ya se hizo por query parameter
-      // Enviamos directamente StartRecognition
       const startMessage = {
         message: 'StartRecognition',
         audio_format: {
@@ -254,7 +232,6 @@ const startRecording = async () => {
   }
 }
 
-// Función para configurar procesamiento de audio
 const setupAudioProcessing = async () => {
   try {
     audioContext = new (window.AudioContext || window.webkitAudioContext)({
@@ -263,19 +240,16 @@ const setupAudioProcessing = async () => {
     
     const source = audioContext.createMediaStreamSource(mediaStream)
     
-    // Usar ScriptProcessor como fallback más simple
     processor = audioContext.createScriptProcessor(4096, 1, 1)
     processor.onaudioprocess = (event) => {
       if (websocket && websocket.readyState === WebSocket.OPEN) {
         const inputBuffer = event.inputBuffer
         const audioData = inputBuffer.getChannelData(0)
         
-        // Convertir a ArrayBuffer
         const buffer = new ArrayBuffer(audioData.length * 4)
         const view = new Float32Array(buffer)
         view.set(audioData)
         
-        // Enviar datos de audio
         websocket.send(buffer)
       }
     }
@@ -291,7 +265,6 @@ const setupAudioProcessing = async () => {
   }
 }
 
-// Función para manejar mensajes del WebSocket
 const handleWebSocketMessage = (data) => {
   switch (data.message) {
     case 'AddPartialTranscript':
@@ -335,19 +308,16 @@ const handleWebSocketMessage = (data) => {
   }
 }
 
-// Función para detener grabación
 const stopRecording = async () => {
   isRecording.value = false
   isConnecting.value = false
   partialTranscript.value = ''
 
-  // Detener el stream de audio
   if (mediaStream) {
     mediaStream.getTracks().forEach(track => track.stop())
     mediaStream = null
   }
 
-  // Cerrar el contexto de audio
   if (audioContext && audioContext.state !== 'closed') {
     if (processor) {
       processor.disconnect()
@@ -357,7 +327,6 @@ const stopRecording = async () => {
     audioContext = null
   }
 
-  // Cerrar WebSocket
   if (websocket && websocket.readyState === WebSocket.OPEN) {
     websocket.send(JSON.stringify({ message: 'EndOfStream' }))
     websocket.close(1000, 'Session ended')
@@ -367,7 +336,6 @@ const stopRecording = async () => {
   showToastMessage('Transcripción detenida', 'info')
 }
 
-// Función para limpiar transcripción
 const clearTranscript = () => {
   finalTranscript.value = ''
   partialTranscript.value = ''
@@ -383,7 +351,6 @@ const saveTranscript = async () => {
 
     isSaving.value = true
 
-    // Llamar a tu endpoint de AWS
     const response = await $api('/transcriptions', {
       method: 'POST',
       headers: {
@@ -420,7 +387,6 @@ const saveTranscript = async () => {
   }
 }
 
-// Función para copiar al portapapeles
 const copyToClipboard = async () => {
   try {
     await navigator.clipboard.writeText(finalTranscript.value)
@@ -431,14 +397,12 @@ const copyToClipboard = async () => {
   }
 }
 
-// Función para mostrar toast
 const showToastMessage = (message, color = 'info') => {
   toastMessage.value = message
   toastColor.value = color
   showToast.value = true
 }
 
-// Limpiar recursos al desmontar
 onUnmounted(() => {
   stopRecording()
 })
