@@ -1,15 +1,15 @@
 <template>
   <div>
-    <!-- Show loading screen if not authenticated -->
-    <div v-if="!token" class="fixed inset-0 bg-black flex items-center justify-center z-50">
+    <!-- Show loading screen only if explicitly not authenticated and ready -->
+    <div v-if="showLoadingScreen" class="fixed inset-0 bg-black flex items-center justify-center z-50">
       <div class="text-center text-white">
         <div class="animate-spin rounded-full h-16 w-16 border-b-2 border-white mx-auto mb-4"></div>
         <p class="text-lg">Cargando...</p>
       </div>
     </div>
 
-    <!-- Dashboard content - only show if authenticated -->
-    <div v-else>
+    <!-- Dashboard content - only show when hydrated and authenticated -->
+    <div v-if="showContent">
       <TranscriptionActions 
         ref="transcriptionActionsRef"
         @audio-recorded="handleAudioRecorded"
@@ -28,7 +28,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 
 definePageMeta({
   layout: 'dashboard',
@@ -37,6 +37,22 @@ definePageMeta({
 
 const { transcribeFile } = useTranscription()
 const { token } = useAuth()
+
+const isHydrated = ref(false)
+const showContent = computed(() => {
+  if (!isHydrated.value) return false
+  return !!token.value
+})
+
+const showLoadingScreen = computed(() => {
+  return !isHydrated.value || (isHydrated.value && !token.value)
+})
+
+onMounted(() => {
+  setTimeout(() => {
+    isHydrated.value = true
+  }, 50)
+})
 
 import TranscriptionActions from '~/components/transcriptions/TranscriptionActions.vue'
 import TranscriptionsTable from '~/components/transcriptions/TranscriptionsTable.vue'

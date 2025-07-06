@@ -1,15 +1,15 @@
 <template>
   <div class="real-time-transcription">
-    <!-- Show loading screen if not authenticated -->
-    <div v-if="!token" class="fixed inset-0 bg-black flex items-center justify-center z-50">
+    <!-- Show loading screen only if explicitly not authenticated and ready -->
+    <div v-if="showLoadingScreen" class="fixed inset-0 bg-black flex items-center justify-center z-50">
       <div class="text-center text-white">
         <div class="animate-spin rounded-full h-16 w-16 border-b-2 border-white mx-auto mb-4"></div>
         <p class="text-lg">Cargando...</p>
       </div>
     </div>
 
-    <!-- Real-time content - only show if authenticated -->
-    <div v-else>
+    <!-- Real-time content - only show when hydrated and authenticated -->
+    <div v-if="showContent">
     <v-card class="pa-6">
       <v-card-title class="text-h5 mb-4">
         Transcripción en Tiempo Real
@@ -110,9 +110,25 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 const { $api } = useNuxtApp()
 const { token } = useAuth()
+
+const isHydrated = ref(false)
+const showContent = computed(() => {
+  if (!isHydrated.value) return false
+  return !!token.value
+})
+
+const showLoadingScreen = computed(() => {
+  return !isHydrated.value || (isHydrated.value && !token.value)
+})
+
+onMounted(() => {
+  setTimeout(() => {
+    isHydrated.value = true
+  }, 50)
+})
 
 definePageMeta({
   layout: 'dashboard',
