@@ -1,18 +1,29 @@
 <template>
   <div>
-    <TranscriptionActions 
-      ref="transcriptionActionsRef"
-      @audio-recorded="handleAudioRecorded"
-      @file-uploaded="handleFileUploaded"
-      @processing-start="handleProcessingStart"
-      @processing-end="handleProcessingEnd"
-    />
-
-    <div>
-      <TranscriptionsTable />
+    <!-- Show loading screen if not authenticated -->
+    <div v-if="!token" class="fixed inset-0 bg-black flex items-center justify-center z-50">
+      <div class="text-center text-white">
+        <div class="animate-spin rounded-full h-16 w-16 border-b-2 border-white mx-auto mb-4"></div>
+        <p class="text-lg">Cargando...</p>
+      </div>
     </div>
 
-    <LoadingModal :is-loading="isLoading" />
+    <!-- Dashboard content - only show if authenticated -->
+    <div v-else>
+      <TranscriptionActions 
+        ref="transcriptionActionsRef"
+        @audio-recorded="handleAudioRecorded"
+        @file-uploaded="handleFileUploaded"
+        @processing-start="handleProcessingStart"
+        @processing-end="handleProcessingEnd"
+      />
+
+      <div>
+        <TranscriptionsTable />
+      </div>
+
+      <LoadingModal :is-loading="isLoading" />
+    </div>
   </div>
 </template>
 
@@ -21,10 +32,11 @@ import { ref } from 'vue'
 
 definePageMeta({
   layout: 'dashboard',
-  middleware: 'auth'
+  middleware: ['auth']
 })
 
 const { transcribeFile } = useTranscription()
+const { token } = useAuth()
 
 import TranscriptionActions from '~/components/transcriptions/TranscriptionActions.vue'
 import TranscriptionsTable from '~/components/transcriptions/TranscriptionsTable.vue'

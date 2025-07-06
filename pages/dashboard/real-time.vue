@@ -1,5 +1,15 @@
 <template>
   <div class="real-time-transcription">
+    <!-- Show loading screen if not authenticated -->
+    <div v-if="!token" class="fixed inset-0 bg-black flex items-center justify-center z-50">
+      <div class="text-center text-white">
+        <div class="animate-spin rounded-full h-16 w-16 border-b-2 border-white mx-auto mb-4"></div>
+        <p class="text-lg">Cargando...</p>
+      </div>
+    </div>
+
+    <!-- Real-time content - only show if authenticated -->
+    <div v-else>
     <v-card class="pa-6">
       <v-card-title class="text-h5 mb-4">
         Transcripción en Tiempo Real
@@ -95,16 +105,18 @@
         {{ toastMessage }}
       </v-snackbar>
     </v-card>
+    </div>
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue'
 const { $api } = useNuxtApp()
+const { token } = useAuth()
 
 definePageMeta({
   layout: 'dashboard',
-  middleware: 'auth'
+  middleware: ['auth']
 })
 
 const isRecording = ref(false)

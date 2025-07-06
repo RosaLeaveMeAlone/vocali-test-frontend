@@ -1,15 +1,12 @@
 <template>
-  <div></div>
+  <div class="d-flex justify-center align-center" style="height: 100vh;">
+    <v-progress-circular indeterminate size="64"></v-progress-circular>
+  </div>
 </template>
 
 <script setup>
-const { token } = useAuth()
-
-onMounted(() => {
-  if (token.value) {
-    navigateTo('/dashboard')
-  } else {
-    navigateTo('/login')
-  }
+definePageMeta({
+  middleware: ['auth']
 })
+
 </script>

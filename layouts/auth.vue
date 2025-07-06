@@ -18,16 +18,8 @@
 </template>
 
 <script setup>
-import { navigateTo } from '#app';
-import { onMounted } from 'vue';
-
-const { token } = useAuth();
-
-onMounted(() => {
-  if (token.value) {
-    navigateTo('/dashboard');
-  }
-});
+// Remove this logic - let middleware handle redirections
+// The middleware should handle auth logic, not the layout
 </script>
 
 <style scoped>
