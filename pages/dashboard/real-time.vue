@@ -133,7 +133,7 @@ const fetchJWT = async () => {
       method: 'POST',
       body: { ttl: 3600 }
     })
-    return response.token
+    return response.data.token
   } catch (error) {
     console.error('Error obteniendo JWT:', error)
     throw error

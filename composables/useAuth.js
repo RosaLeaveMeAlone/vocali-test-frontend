@@ -36,10 +36,10 @@ export const useAuth = () => {
       });
       console.log('Login response:', response);
       if (process.client) {
-        user.value = response.userData;
-        token.value = response.token;
-        localStorage.setItem('token', response.token);
-        localStorage.setItem('user', JSON.stringify(response.userData));
+        user.value = response.data.userData;
+        token.value = response.data.token;
+        localStorage.setItem('token', response.data.token);
+        localStorage.setItem('user', JSON.stringify(response.data.userData));
       }
       return response;
     } catch (error) {
